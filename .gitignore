@@ -1,0 +1,27 @@
+# Build output
+/build/
+/dist/
+/python/build/
+/python/dist/
+*.egg-info/
+/cmake-build-*/
+/out/
+
+# Compiled extension (built in place for development)
+*.pyd
+*.so
+*.dylib
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Environments
+/.venv/
+/.venv*/
+
+# IDEs
+/.idea/
+/.vscode/

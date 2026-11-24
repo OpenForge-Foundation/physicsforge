@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=69", "wheel", "pybind11>=2.12"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "physicsforge"
+dynamic = ["version"]
+description = "Fast, validated physics: a C++20 core with typed, vectorised Python bindings."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "OpenForge Foundation" }]
+dependencies = ["numpy>=1.24"]
+keywords = ["physics", "mechanics", "electromagnetism", "thermodynamics", "numerics", "pybind11"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pre-commit", "ruff", "build"]
+
+[project.urls]
+Homepage = "https://github.com/OpenForge-Foundation/physicsforge"
+Issues = "https://github.com/OpenForge-Foundation/physicsforge/issues"
+
+[tool.pytest.ini_options]
+testpaths = ["python/tests", "python/physicsforge"]
+addopts = "--doctest-modules -ra"
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "NUMBER"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+src = ["python"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "NPY", "D"]
+# D401/D403: summaries are noun phrases ("Kinetic energy ...", "de Broglie ...") by design.
+ignore = ["D105", "D107", "D401", "D403"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"python/tests/*" = ["D"]
+"setup.py" = ["D"]
