@@ -1,5 +1,6 @@
 """Package-level contracts: version, public API surface, broadcasting and errors."""
 
+import inspect
 import math
 
 import numpy as np
@@ -21,7 +22,8 @@ def test_version_matches_core():
 def test_all_exports_exist_and_are_documented(package):
     for name in package.__all__:
         obj = getattr(package, name)
-        if callable(obj) and not isinstance(obj, type(pf)):
+        # Functions and classes only: type aliases (e.g. InitialProfile) carry no docstring on older Pythons.
+        if inspect.isroutine(obj) or inspect.isclass(obj):
             assert obj.__doc__, f"{package.__name__}.{name} has no docstring"
 
 

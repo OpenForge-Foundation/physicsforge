@@ -91,7 +91,7 @@ def heat_fourier_coefficients(
     --------
     >>> import numpy as np
     >>> x = np.linspace(0.0, 1.0, 101)
-    >>> np.round(heat_fourier_coefficients(np.sin(np.pi * x) + 0.5 * np.sin(3 * np.pi * x), 3), 12)
+    >>> np.round(heat_fourier_coefficients(np.sin(np.pi * x) + 0.5 * np.sin(3 * np.pi * x), 3), 12) + 0.0
     array([1. , 0. , 0.5])
     """
     return _core.heat_fourier_coefficients(initial_temperatures, int(n_terms), left_temperature, right_temperature)

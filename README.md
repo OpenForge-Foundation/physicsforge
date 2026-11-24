@@ -372,7 +372,7 @@ quadrature; FFT for any length (radix-2 plus Bluestein); Fourier series; Laplace
 
 **Quality:**
 - Native C++ tests, a pytest suite and executed doctests.
-- Warning-free under MSVC `/W4`.
+- Warning-free under MSVC `/W4` and GCC/Clang `-Wall -Wextra -Wpedantic -Wshadow -Wconversion` (enforced in CI).
 - CI for formatting, a C++ matrix and wheels.
 
 ---
@@ -385,7 +385,6 @@ quadrature; FFT for any length (radix-2 plus Bluestein); Fourier series; Laplace
 - Fluid mechanics (Bernoulli, Reynolds number, drag), waves and optics, and statistical mechanics.
 - AC circuit analysis with complex impedance.
 - Unit-aware wrappers, possibly with optional `pint` interop.
-- Enable warnings-as-errors on GCC/Clang in CI once their `-Wconversion` output is verified clean.
 - Published wheels on PyPI (cibuildwheel) and hosted API documentation (Sphinx + numpydoc).
 - Benchmarks against NumPy/SciPy equivalents.
 

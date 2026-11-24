@@ -18,15 +18,13 @@ jobs:
         steps:
             -   uses: actions/checkout@v4
 
-            # Warnings-as-errors is enforced where the build is verified warning-free (MSVC /W4);
-            # flip it on for GCC/Clang once their -Wconversion output is clean.
             -   name: Configure
                 run: >
                     cmake -S . -B build
                     -DCMAKE_BUILD_TYPE=Release
                     -DPHYSICSFORGE_BUILD_PYTHON=OFF
                     -DPHYSICSFORGE_BUILD_C_SHARED=ON
-                    -DPHYSICSFORGE_WARNINGS_AS_ERRORS=${{ runner.os == 'Windows' && 'ON' || 'OFF' }}
+                    -DPHYSICSFORGE_WARNINGS_AS_ERRORS=ON
 
             -   name: Build
                 run: cmake --build build --config Release --parallel

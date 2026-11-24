@@ -17,6 +17,19 @@ namespace physicsforge::thermodynamics {
     using detail::require_positive;
 
     namespace {
+        // Copy of a validated grid (size >= 3) with its end values replaced by the Dirichlet
+        // boundary temperatures. Built by appending rather than indexing so compilers never see
+        // a front()/back() access on a possibly-empty vector.
+        std::vector<double> with_boundaries(const std::span<const double> temperatures, const double left,
+                                            const double right) {
+            std::vector<double> grid;
+            grid.reserve(temperatures.size());
+            grid.push_back(left);
+            grid.insert(grid.end(), temperatures.begin() + 1, temperatures.end() - 1);
+            grid.push_back(right);
+            return grid;
+        }
+
         void require_grid(const std::span<const double> temperatures) {
             if (temperatures.size() < 3) {
                 detail::throw_invalid("initial_temperatures must contain at least 3 grid points");
@@ -128,9 +141,7 @@ namespace physicsforge::thermodynamics {
         }
 
         const std::size_t n = initial_temperatures.size();
-        std::vector<double> current(initial_temperatures.begin(), initial_temperatures.end());
-        current.front() = left_temperature;
-        current.back() = right_temperature;
+        std::vector<double> current = with_boundaries(initial_temperatures, left_temperature, right_temperature);
         std::vector<double> next = current;
 
         for (int step = 0; step < steps; ++step) {
@@ -153,9 +164,7 @@ namespace physicsforge::thermodynamics {
 
         const std::size_t n = initial_temperatures.size();
         const std::size_t m = n - 2; // interior unknowns
-        std::vector<double> u(initial_temperatures.begin(), initial_temperatures.end());
-        u.front() = left_temperature;
-        u.back() = right_temperature;
+        std::vector<double> u = with_boundaries(initial_temperatures, left_temperature, right_temperature);
 
         // Implicit operator (I - r/2 D2) is tridiagonal with constant coefficients:
         //   sub = super = -r/2, diag = 1 + r.
