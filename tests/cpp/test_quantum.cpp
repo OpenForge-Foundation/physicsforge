@@ -1,4 +1,4 @@
-// tests/test_quantum.cpp
+// tests/cpp/test_quantum.cpp
 #include <cmath>
 #include <stdexcept>
 

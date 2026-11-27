@@ -145,17 +145,17 @@ if (PHYSICSFORGE_BUILD_PYTHON)
     endif ()
 
     pybind11_add_module(_physicsforge
-            python/bindings/bindings.cpp
-            python/bindings/constants.cpp
-            python/bindings/vector.cpp
-            python/bindings/mechanics.cpp
-            python/bindings/electromagnetism.cpp
-            python/bindings/thermodynamics.cpp
-            python/bindings/quantum.cpp
-            python/bindings/relativity.cpp
-            python/bindings/numerics.cpp
+            src/bindings/bindings.cpp
+            src/bindings/constants.cpp
+            src/bindings/vector.cpp
+            src/bindings/mechanics.cpp
+            src/bindings/electromagnetism.cpp
+            src/bindings/thermodynamics.cpp
+            src/bindings/quantum.cpp
+            src/bindings/relativity.cpp
+            src/bindings/numerics.cpp
     )
-    target_include_directories(_physicsforge PRIVATE python/bindings)
+    target_include_directories(_physicsforge PRIVATE src/bindings)
     target_link_libraries(_physicsforge PRIVATE physicsforge_core physicsforge_warnings)
     target_compile_definitions(_physicsforge PRIVATE PHYSICSFORGE_PYTHON_VERSION_INFO="${PROJECT_VERSION}")
 endif ()
@@ -166,16 +166,16 @@ endif ()
 if (PHYSICSFORGE_BUILD_TESTS)
     enable_testing()
     add_executable(physicsforge_tests
-            tests/test_main.cpp
-            tests/test_constants.cpp
-            tests/test_vector.cpp
-            tests/test_mechanics.cpp
-            tests/test_electromagnetism.cpp
-            tests/test_thermodynamics.cpp
-            tests/test_quantum.cpp
-            tests/test_relativity.cpp
-            tests/test_numerics.cpp
-            tests/test_api.cpp
+            tests/cpp/test_app.cpp
+            tests/cpp/test_constants.cpp
+            tests/cpp/test_vector.cpp
+            tests/cpp/test_mechanics.cpp
+            tests/cpp/test_electromagnetism.cpp
+            tests/cpp/test_thermodynamics.cpp
+            tests/cpp/test_quantum.cpp
+            tests/cpp/test_relativity.cpp
+            tests/cpp/test_numerics.cpp
+            tests/cpp/test_api.cpp
     )
     target_link_libraries(physicsforge_tests PRIVATE physicsforge_core physicsforge_warnings)
     add_test(NAME physicsforge_tests COMMAND physicsforge_tests)

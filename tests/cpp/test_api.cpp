@@ -1,4 +1,4 @@
-// tests/test_api.cpp - the C ABI returns values on success and NaN on invalid input.
+// tests/cpp/test_api.cpp - the C ABI returns values on success and NaN on invalid input.
 #include <cmath>
 #include <cstring>
 

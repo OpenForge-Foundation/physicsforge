@@ -25,9 +25,8 @@ from __future__ import annotations
 import numpy as np
 
 from physicsforge import _physicsforge as _core
+from physicsforge._physicsforge import Vector3
 from physicsforge._typing import VectorLike
-
-Vector3 = _core.Vector3
 
 
 def as_vector(value: VectorLike, name: str = "vector") -> Vector3:

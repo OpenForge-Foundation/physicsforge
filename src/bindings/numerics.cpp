@@ -1,4 +1,4 @@
-// python/bindings/numerics.cpp - exposes physicsforge::numerics
+// src/bindings/numerics.cpp - exposes physicsforge::numerics
 //
 // Routines that take user callables keep the GIL (they call back into Python);
 // pure-array routines (FFT, Fourier-series evaluation) release it.

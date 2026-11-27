@@ -1,4 +1,4 @@
-// python/bindings/relativity.cpp - exposes physicsforge::relativity
+// src/bindings/relativity.cpp - exposes physicsforge::relativity
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 

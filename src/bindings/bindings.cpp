@@ -1,4 +1,4 @@
-// python/bindings/bindings.cpp
+// src/bindings/bindings.cpp
 //
 // Defines the compiled extension module physicsforge._physicsforge and wires in
 // each domain's bindings. The public, documented Python API lives in

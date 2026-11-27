@@ -1,45 +1,71 @@
 name: Python Distro Check
 
+# Checks if:
+#   - does C++ compile without warnings?
+#   - do the C++ unit tests pass?
+#   - does a wheel built from this tree install and pass the Python suite and doctests?
+#   - does the package type-check?
 on:
     push:
-    pull_request:
         branches: [ main, develop ]
-    workflow_dispatch:
+    pull_request: # Every PR is checked
+
+concurrency:
+    group: distro-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
 
 jobs:
-    wheel:
-        name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: false
-            matrix:
-                os: [ ubuntu-latest, windows-latest ]
-                python-version: [ '3.10', '3.12', '3.14' ]
+    check:
+        name: build + test (ubuntu, py3.14)
+        runs-on: ubuntu-latest
 
         steps:
-            -   uses: actions/checkout@v4
+            -   name: Checkout repository
+                uses: actions/checkout@v7
 
-            -   name: Set up Python ${{ matrix.python-version }}
-                uses: actions/setup-python@v5
+            -   name: Set up Python 3.14
+                uses: actions/setup-python@v7
                 with:
-                    python-version: ${{ matrix.python-version }}
+                    python-version: '3.14'
 
-            -   name: Install build dependencies
+            -   name: Install Python dependencies
                 run: |
                     python -m pip install --upgrade pip
-                    pip install build pytest
+                    pip install -r requirements-dev.txt
 
+            # Release, so the C++ tests exercise the same optimised code the wheels ship.
+            # Warnings are errors here; the other compilers are covered by wheels.yml on main.
+            -   name: Configure CMake
+                run: >
+                    cmake -S . -B build
+                    -DCMAKE_BUILD_TYPE=Release
+                    -DPHYSICSFORGE_BUILD_PYTHON=OFF
+                    -DPHYSICSFORGE_BUILD_C_SHARED=ON
+                    -DPHYSICSFORGE_WARNINGS_AS_ERRORS=ON
+
+            -   name: Build C++ library and tests
+                run: cmake --build build --parallel
+
+            -   name: Run C++ tests
+                run: ctest --test-dir build --output-on-failure
+
+            # Build isolation is left on so this also validates that
+            # build-system.requires in pyproject.toml is complete.
             -   name: Build wheel
                 run: python -m build --wheel
 
             -   name: Install wheel
-                shell: bash
                 run: pip install dist/*.whl --force-reinstall
 
-            -   name: Run tests against the installed wheel
-                # Run from a neutral directory so the installed package, not ./python, is imported.
-                shell: bash
+            # Run from a neutral directory so the installed wheel, not ./python, is imported.
+            -   name: Run Python tests and doctests
                 run: |
                     cd "$RUNNER_TEMP"
-                    python -m pytest "$GITHUB_WORKSPACE/python/tests" -p no:cacheprovider -o addopts="" --rootdir "$RUNNER_TEMP"
-                    python -m pytest --doctest-modules --pyargs physicsforge -p no:cacheprovider -o addopts="" --rootdir "$RUNNER_TEMP"
+                    python -m pytest "$GITHUB_WORKSPACE/tests/python" -q -p no:cacheprovider -o addopts="" --rootdir "$RUNNER_TEMP"
+                    python -m pytest --doctest-modules --pyargs physicsforge -q -p no:cacheprovider -o addopts="" --rootdir "$RUNNER_TEMP"
+
+            -   name: Type check
+                run: mypy

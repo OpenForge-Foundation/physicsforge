@@ -73,7 +73,7 @@ foreach ($version in $PythonVersion)
         Push-Location $env:TEMP
         try
         {
-            & $venvPython -m pytest (Join-Path $projectRoot "python\tests") -q -p no:cacheprovider -o addopts="" --rootdir $env:TEMP
+            & $venvPython -m pytest (Join-Path $projectRoot "tests\python") -q -p no:cacheprovider -o addopts="" --rootdir $env:TEMP
             if ($LASTEXITCODE -ne 0)
             {
                 Write-Error "Tests failed for Python $version"

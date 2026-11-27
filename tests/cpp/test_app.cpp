@@ -1,4 +1,4 @@
-// tests/test_main.cpp - entry point for the physicsforge C++ unit tests.
+// tests/cpp/test_app.cpp - entry point for the physicsforge C++ unit tests.
 #include <iostream>
 
 #include "test_framework.h"

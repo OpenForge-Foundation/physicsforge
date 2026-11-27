@@ -20,11 +20,9 @@ from typing import Any
 import numpy as np
 
 from physicsforge import _physicsforge as _core
+from physicsforge._physicsforge import RootResult, SystemRootResult
 from physicsforge._typing import ArrayLike
 from physicsforge.numerics.calculus import _as_point, _vector_valued
-
-RootResult = _core.RootResult
-SystemRootResult = _core.SystemRootResult
 
 DEFAULT_TOLERANCE = 1e-12
 DEFAULT_MAX_ITERATIONS = 100

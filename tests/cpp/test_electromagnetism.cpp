@@ -1,4 +1,4 @@
-// tests/test_electromagnetism.cpp
+// tests/cpp/test_electromagnetism.cpp
 #include <stdexcept>
 #include <vector>
 

@@ -118,8 +118,8 @@ class CMakeBuild(build_ext):
 setup(
     version=read_version(),
     package_dir={"": "python"},
-    packages=find_packages(where="python", exclude=["tests", "tests.*"]),
-    package_data={"physicsforge": ["py.typed"]},
+    packages=find_packages(where="python"),
+    package_data={"physicsforge": ["py.typed", "_physicsforge.pyi"]},
     ext_modules=[CMakeExtension("physicsforge._physicsforge", sourcedir=str(ROOT))],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,

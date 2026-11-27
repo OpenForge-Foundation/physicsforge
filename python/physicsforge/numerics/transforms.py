@@ -18,9 +18,8 @@ import numpy as np
 from numpy.typing import NDArray
 
 from physicsforge import _physicsforge as _core
+from physicsforge._physicsforge import FourierSeries
 from physicsforge._typing import ArrayLike, FloatArray
-
-FourierSeries = _core.FourierSeries
 
 
 def fft(x: ArrayLike) -> NDArray[np.complex128]:

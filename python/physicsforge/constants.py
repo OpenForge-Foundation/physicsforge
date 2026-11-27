@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from typing import Final
 
-from physicsforge._physicsforge import constants as _c
+from physicsforge import _physicsforge as _c
 
 # Mathematical
 PI: Final[float] = _c.PI

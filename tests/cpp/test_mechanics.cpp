@@ -1,4 +1,4 @@
-// tests/test_mechanics.cpp
+// tests/cpp/test_mechanics.cpp
 #include <cmath>
 #include <stdexcept>
 

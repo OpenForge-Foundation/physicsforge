@@ -1,4 +1,4 @@
-// python/bindings/electromagnetism.cpp - exposes physicsforge::electromagnetism
+// src/bindings/electromagnetism.cpp - exposes physicsforge::electromagnetism
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 

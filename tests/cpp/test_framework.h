@@ -1,10 +1,10 @@
-// tests/test_framework.h
+// tests/cpp/test_framework.h
 //
 // Minimal, dependency-free test harness.
 //
 // Unlike <cassert>, these checks stay active in Release builds (NDEBUG), report
 // the file/line and values of every failure, and keep running so a single run
-// surfaces all failures. test_main.cpp returns a non-zero exit code if any check
+// surfaces all failures. test_app.cpp returns a non-zero exit code if any check
 // failed, which CTest and CI treat as a test failure.
 
 #ifndef PHYSICSFORGE_TEST_FRAMEWORK_H

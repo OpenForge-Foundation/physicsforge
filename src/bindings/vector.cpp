@@ -1,4 +1,4 @@
-// python/bindings/vector.cpp - exposes physicsforge::math::Vec3 as Vector3
+// src/bindings/vector.cpp - exposes physicsforge::math::Vec3 as Vector3
 
 #include <pybind11/numpy.h>
 #include <pybind11/operators.h>

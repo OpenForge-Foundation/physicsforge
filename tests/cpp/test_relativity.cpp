@@ -1,4 +1,4 @@
-// tests/test_relativity.cpp
+// tests/cpp/test_relativity.cpp
 #include <stdexcept>
 
 #include "physicsforge/constants.h"

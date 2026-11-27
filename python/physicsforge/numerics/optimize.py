@@ -18,11 +18,10 @@ from collections.abc import Callable
 import numpy as np
 
 from physicsforge import _physicsforge as _core
+from physicsforge._physicsforge import OptimizeResult
 from physicsforge._typing import ArrayLike
 from physicsforge.numerics.calculus import _as_point, _multivariate
 from physicsforge.numerics.roots import ConvergenceError
-
-OptimizeResult = _core.OptimizeResult
 
 
 def newton_minimize(

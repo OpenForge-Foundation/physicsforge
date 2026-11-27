@@ -1,4 +1,4 @@
-// python/bindings/mechanics.cpp - exposes physicsforge::mechanics
+// src/bindings/mechanics.cpp - exposes physicsforge::mechanics
 //
 // Scalar laws are wrapped with py::vectorize, so each accepts any mix of Python
 // scalars and NumPy arrays and broadcasts in C++ (no Python-level loop).

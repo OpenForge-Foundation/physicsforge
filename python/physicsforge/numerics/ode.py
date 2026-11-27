@@ -19,10 +19,8 @@ from typing import Any
 import numpy as np
 
 from physicsforge import _physicsforge as _core
+from physicsforge._physicsforge import OdeSolution, SecondOrderSolution
 from physicsforge._typing import ArrayLike
-
-OdeSolution = _core.OdeSolution
-SecondOrderSolution = _core.SecondOrderSolution
 
 
 def _state(values: ArrayLike, name: str) -> list[float]:

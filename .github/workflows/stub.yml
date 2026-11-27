@@ -1,0 +1,67 @@
+name: Type Stub
+
+# Regenerates python/physicsforge/_physicsforge.pyi from a fresh build and fails
+# if the committed file differs.
+on:
+    push:
+        branches: [ main, develop ]
+    pull_request:
+        paths:
+            - 'src/bindings/**'
+            - 'include/physicsforge/**'
+            - 'python/physicsforge/_physicsforge.pyi'
+            - 'requirements-dev.txt'
+            - 'CMakeLists.txt'
+            - '.github/workflows/stub.yml'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    stub:
+        name: stub matches the bindings
+        # Pinned, not ubuntu-latest: this job regenerates a committed artifact,
+        # so its toolchain has to be reproducible.
+        runs-on: ubuntu-24.04
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v7
+
+            -   name: Set up Python
+                uses: actions/setup-python@v7
+                with:
+                    python-version: '3.14'
+
+            -   name: Install Python dependencies
+                run: |
+                    python -m pip install --upgrade pip
+                    pip install -r requirements-dev.txt cmake ninja
+
+            # No build isolation, so the extension is compiled against the pinned
+            # pybind11 from requirements-dev.txt that the committed stub was made with.
+            -   name: Build the extension
+                run: pip install . --no-build-isolation -v
+
+            -   name: Regenerate the stub
+                run: |
+                    cd "$RUNNER_TEMP"
+                    pybind11-stubgen physicsforge._physicsforge -o stub-check
+
+            -   name: Compare against the committed stub
+                run: |
+                    if diff -u python/physicsforge/_physicsforge.pyi "$RUNNER_TEMP/stub-check/physicsforge/_physicsforge.pyi"; then
+                        echo "stub matches the bindings"
+                    else
+                        echo "::error::_physicsforge.pyi is out of date. Download the regenerated-stub artifact from this run and commit it."
+                        exit 1
+                    fi
+
+            -   name: Upload the regenerated stub
+                if: failure()
+                uses: actions/upload-artifact@v7
+                with:
+                    name: regenerated-stub
+                    path: ${{ runner.temp }}/stub-check/physicsforge/_physicsforge.pyi
+                    if-no-files-found: error

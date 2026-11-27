@@ -1,4 +1,4 @@
-// python/bindings/binding_utils.h
+// src/bindings/binding_utils.h
 //
 // Shared helpers for the pybind11 layer: zero-copy views of NumPy inputs and
 // zero-copy hand-off of std::vector results to NumPy.

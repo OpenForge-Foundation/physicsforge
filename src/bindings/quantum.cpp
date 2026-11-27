@@ -1,4 +1,4 @@
-// python/bindings/quantum.cpp - exposes physicsforge::quantum
+// src/bindings/quantum.cpp - exposes physicsforge::quantum
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 

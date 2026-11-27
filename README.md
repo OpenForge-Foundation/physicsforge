@@ -79,14 +79,14 @@ double drag_force(double density, double speed, double drag_coefficient, double 
 
 2. Define it in the matching source file (`src/mechanics/dynamics.cpp`), validating inputs with the helpers in
    `include/physicsforge/validation.h`.
-3. Add checks to the matching test file (`tests/test_mechanics.cpp`).
+3. Add checks to the matching test file (`tests/cpp/test_mechanics.cpp`).
 4. New source or test files must be added to `CMakeLists.txt`.
 5. Optionally expose it through the C API: declare `pf_mechanics_drag_force` in `include/physicsforge/api.h` and define
    it in `src/api/mechanics.cpp`.
 
 ### Creating the Python Bindings
 
-1. Add the function to the domain's binding file, `python/bindings/mechanics.cpp`:
+1. Add the function to the domain's binding file, `src/bindings/mechanics.cpp`:
 
 ```cpp
 m.def("drag_force", py::vectorize(&pm::drag_force), py::arg("density"), py::arg("speed"),
@@ -94,20 +94,26 @@ m.def("drag_force", py::vectorize(&pm::drag_force), py::arg("density"), py::arg(
 ```
 
 2. A new binding file needs `void bind_<domain>(py::module_ &m);` and `bind_<domain>(m);` added to
-   `python/bindings/bindings.cpp` (in alphabetical order).
+   `src/bindings/bindings.cpp` (in alphabetical order).
+3. Regenerate the type stub, which CI checks against the bindings:
+
+```bash
+pybind11-stubgen physicsforge._physicsforge -o stubs
+cp stubs/physicsforge/_physicsforge.pyi python/physicsforge/
+```
 
 ### Creating the Python Function
 
 1. Add a typed wrapper with a NumPy-style docstring and a doctest example to
    `python/physicsforge/mechanics/dynamics.py`, and list it in that module's `__all__`.
-2. Add a test to `python/tests/test_mechanics.py`.
+2. Add a test to `tests/python/test_mechanics.py`.
 
 ### Notes
 
 `include/physicsforge/mechanics/rocketry.h` contains the C++ declarations. \
 `src/mechanics/rocketry.cpp` contains the C++ definitions. \
-`python/bindings/mechanics.cpp` contains the pybind11 bindings. \
-`python/bindings/bindings.cpp` contains the module bindings. \
+`src/bindings/mechanics.cpp` contains the pybind11 bindings. \
+`src/bindings/bindings.cpp` contains the module bindings. \
 `python/physicsforge/mechanics/rocketry.py` contains the Python functions.
 
 ---
@@ -194,7 +200,7 @@ Vectors and Constants:
 Testing and CI:
 
 - C++ unit tests, a pytest suite and executed doctests
-- GitHub Actions for formatting, a Linux/Windows/macOS C++ matrix (warnings as errors) and wheel builds
+- GitHub Actions for formatting, a per-push build and test check, type-stub verification and wheel builds on `main`
 
 ---
 

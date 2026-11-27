@@ -1,4 +1,4 @@
-// python/bindings/thermodynamics.cpp - exposes physicsforge::thermodynamics
+// src/bindings/thermodynamics.cpp - exposes physicsforge::thermodynamics
 #include <vector>
 
 #include <pybind11/numpy.h>

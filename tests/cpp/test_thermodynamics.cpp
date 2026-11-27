@@ -1,4 +1,4 @@
-// tests/test_thermodynamics.cpp
+// tests/cpp/test_thermodynamics.cpp
 #include <cmath>
 #include <stdexcept>
 #include <vector>
