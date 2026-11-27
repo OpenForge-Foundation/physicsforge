@@ -7,6 +7,12 @@ from physicsforge import ConvergenceError
 from physicsforge import numerics as nm
 
 
+@pytest.fixture
+def rng() -> np.random.Generator:
+    """Deterministic generator so failures are reproducible."""
+    return np.random.default_rng(20260101)
+
+
 class TestCalculus:
     def test_derivatives(self):
         assert nm.derivative(math.exp, 1.0) == pytest.approx(math.e, rel=1e-11)
@@ -192,3 +198,56 @@ class TestTransforms:
         f = lambda t: t * math.exp(-t)  # noqa: E731
         approx = nm.inverse_laplace_transform(lambda s: nm.laplace_transform(f, s, tolerance=1e-12), 1.3)
         assert approx == pytest.approx(f(1.3), rel=1e-3)
+
+
+class TestOde:
+    @staticmethod
+    def decay_error(method, steps):
+        sol = method(lambda t, y: -y, 1.0, (0.0, 1.0), steps)
+        return abs(sol.y[-1, 0] - math.exp(-1.0))
+
+    def test_convergence_orders(self):
+        assert self.decay_error(nm.euler, 200) / self.decay_error(nm.euler, 400) == pytest.approx(2.0, rel=0.02)
+        ratio = self.decay_error(nm.runge_kutta4, 20) / self.decay_error(nm.runge_kutta4, 40)
+        assert ratio == pytest.approx(16.0, rel=0.05)
+
+    def test_trajectory_shapes(self):
+        sol = nm.runge_kutta4(lambda t, y: [y[1], -y[0]], [1.0, 0.0], (0.0, 2.0), steps=7)
+        assert sol.t.shape == (8,) and sol.y.shape == (8, 2)
+        assert sol.t[0] == 0.0 and sol.t[-1] == 2.0
+        np.testing.assert_array_equal(sol.y[0], [1.0, 0.0])
+
+    def test_time_dependent_rhs(self):
+        # y' = cos(t)  =>  y = sin(t)
+        sol = nm.runge_kutta4(lambda t, y: [math.cos(t)], 0.0, (0.0, 2.0), steps=50)
+        np.testing.assert_allclose(sol.y[:, 0], np.sin(sol.t), atol=1e-8)
+
+    def test_energy_behaviour_on_oscillator(self):
+        t_span, steps = (0.0, 100 * 2 * math.pi), 10_000
+        explicit = nm.euler(lambda t, y: [y[1], -y[0]], [1.0, 0.0], t_span, steps)
+        assert 0.5 * (explicit.y[-1] ** 2).sum() > 10.0  # forward Euler gains energy
+        symplectic = nm.semi_implicit_euler(lambda t, x: -x, 1.0, 0.0, t_span, steps)
+        energy = 0.5 * (symplectic.x[:, 0] ** 2 + symplectic.v[:, 0] ** 2)
+        assert np.abs(energy - 0.5).max() < 0.05  # bounded, no secular growth
+
+    def test_kepler_orbit_closes(self):
+        # Unit circular orbit (GM = 1): period 2*pi; the symplectic integrator returns near the start.
+        def gravity(t, r):
+            return -r / np.linalg.norm(r) ** 3
+
+        sol = nm.semi_implicit_euler(gravity, [1.0, 0.0], [0.0, 1.0], (0.0, 2 * math.pi), steps=20_000)
+        np.testing.assert_allclose(sol.x[-1], [1.0, 0.0], atol=1e-3)
+        np.testing.assert_allclose(np.linalg.norm(sol.x, axis=1), 1.0, atol=1e-3)
+
+    @pytest.mark.parametrize(
+        "call",
+        [
+            lambda: nm.euler(lambda t, y: -y, 1.0, (1.0, 0.0), 10),
+            lambda: nm.euler(lambda t, y: -y, 1.0, (0.0, 1.0), 0),
+            lambda: nm.euler(lambda t, y: [y[0], y[0]], 1.0, (0.0, 1.0), 10),
+            lambda: nm.semi_implicit_euler(lambda t, x: -x, [1.0], [0.0, 1.0], (0.0, 1.0), 10),
+        ],
+    )
+    def test_invalid_input(self, call):
+        with pytest.raises(ValueError):
+            call()

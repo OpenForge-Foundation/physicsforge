@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "physicsforge/detail/validation.h"
+#include "physicsforge/validation.h"
 
 namespace physicsforge::electromagnetism {
 

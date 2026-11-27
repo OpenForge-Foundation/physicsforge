@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <string>
 
-#include "physicsforge/detail/validation.h"
+#include "physicsforge/validation.h"
 
 namespace physicsforge::numerics {
 

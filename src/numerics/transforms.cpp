@@ -8,8 +8,8 @@
 #include <numbers>
 #include <utility>
 
-#include "physicsforge/detail/validation.h"
 #include "physicsforge/numerics/integrate.h"
+#include "physicsforge/validation.h"
 
 namespace physicsforge::numerics {
 

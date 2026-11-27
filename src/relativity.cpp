@@ -1,12 +1,12 @@
-// src/modern/relativity.cpp
-#include "physicsforge/modern/relativity.h"
+// src/relativity.cpp
+#include "physicsforge/relativity.h"
 
 #include <cmath>
 
 #include "physicsforge/constants.h"
-#include "physicsforge/detail/validation.h"
+#include "physicsforge/validation.h"
 
-namespace physicsforge::modern {
+namespace physicsforge::relativity {
 
     using constants::SPEED_OF_LIGHT;
     using detail::require_non_negative;
@@ -58,4 +58,4 @@ namespace physicsforge::modern {
         return gamma_minus_one(velocity) * mass * SPEED_OF_LIGHT * SPEED_OF_LIGHT;
     }
 
-} // namespace physicsforge::modern
+} // namespace physicsforge::relativity

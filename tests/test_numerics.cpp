@@ -1,4 +1,5 @@
 // tests/test_numerics.cpp
+#include <algorithm>
 #include <cmath>
 #include <complex>
 #include <stdexcept>
@@ -7,6 +8,7 @@
 #include "physicsforge/constants.h"
 #include "physicsforge/numerics/calculus.h"
 #include "physicsforge/numerics/integrate.h"
+#include "physicsforge/numerics/ode.h"
 #include "physicsforge/numerics/optimize.h"
 #include "physicsforge/numerics/roots.h"
 #include "physicsforge/numerics/transforms.h"
@@ -204,4 +206,58 @@ void test_numerics() {
                        0.0);
     PF_CHECK_CLOSE_TOL(inverse_laplace_transform([](double s) { return 1.0 / (s * s); }, 2.5), 2.5, 1e-4, 0.0);
     PF_CHECK_THROWS(inverse_laplace_transform([](double s) { return 1.0 / s; }, 1.0, 7), std::invalid_argument);
+}
+
+void test_ode() {
+    using namespace physicsforge::numerics;
+    using State = std::vector<double>;
+
+    // y' = -y, y(0) = 1  =>  y(1) = e^-1. Global error ~ h^p, so halving h divides it by 2^p.
+    const OdeFunction decay = [](double, const State &y) { return State{-y[0]}; };
+    const auto final_error = [&](const auto &method, int steps) {
+        return std::abs(method(decay, 0.0, State{1.0}, 1.0, steps).y.back() - std::exp(-1.0));
+    };
+    const auto euler_method = [](const OdeFunction &f, double t0, const State &y0, double t1, int n) {
+        return euler(f, t0, y0, t1, n);
+    };
+    const auto rk4_method = [](const OdeFunction &f, double t0, const State &y0, double t1, int n) {
+        return runge_kutta4(f, t0, y0, t1, n);
+    };
+    PF_CHECK_CLOSE_TOL(final_error(euler_method, 200) / final_error(euler_method, 400), 2.0, 0.02, 0.0);
+    PF_CHECK_CLOSE_TOL(final_error(rk4_method, 20) / final_error(rk4_method, 40), 16.0, 0.05, 0.0);
+    PF_CHECK(final_error(rk4_method, 100) < 1e-10);
+
+    // Trajectory layout: steps + 1 rows, exact end time.
+    const OdeSolution sol = runge_kutta4(decay, 0.0, State{1.0}, 2.0, 7);
+    PF_CHECK(sol.t.size() == 8 && sol.y.size() == 8 && sol.dimension == 1);
+    PF_CHECK(sol.t.front() == 0.0 && sol.t.back() == 2.0);
+
+    // Harmonic oscillator x'' = -x from (1, 0): energy (x^2 + v^2) / 2 starts at 0.5.
+    const OdeFunction oscillator = [](double, const State &y) { return State{y[1], -y[0]}; };
+    const AccelerationFunction spring = [](double, const State &x) { return State{-x[0]}; };
+    constexpr int steps = 10000;
+    const double t_end = 100.0 * c::TAU; // 100 periods
+    const auto energy = [](double x, double v) { return 0.5 * (x * x + v * v); };
+
+    const OdeSolution explicit_run = euler(oscillator, 0.0, State{1.0, 0.0}, t_end, steps);
+    const double explicit_energy = energy(explicit_run.y[2 * steps], explicit_run.y[2 * steps + 1]);
+    PF_CHECK(explicit_energy > 10.0); // forward Euler pumps energy into the oscillator
+
+    const SecondOrderSolution symplectic = semi_implicit_euler(spring, 0.0, State{1.0}, State{0.0}, t_end, steps);
+    double max_drift = 0.0;
+    for (int i = 0; i <= steps; ++i) {
+        const auto row = static_cast<std::size_t>(i);
+        max_drift = std::max(max_drift, std::abs(energy(symplectic.position[row], symplectic.velocity[row]) - 0.5));
+    }
+    PF_CHECK(max_drift < 0.05); // bounded: O(h), no secular growth
+
+    const OdeSolution rk4_run = runge_kutta4(oscillator, 0.0, State{1.0, 0.0}, t_end, steps);
+    PF_CHECK_CLOSE_TOL(rk4_run.y[2 * steps], std::cos(t_end), 0.0, 1e-4);
+
+    // Invalid input.
+    PF_CHECK_THROWS(euler(decay, 0.0, State{}, 1.0, 10), std::invalid_argument);
+    PF_CHECK_THROWS(euler(decay, 1.0, State{1.0}, 0.0, 10), std::invalid_argument);
+    PF_CHECK_THROWS(runge_kutta4(decay, 0.0, State{1.0}, 1.0, 0), std::invalid_argument);
+    PF_CHECK_THROWS(euler(oscillator, 0.0, State{1.0}, 1.0, 10), std::invalid_argument); // wrong size
+    PF_CHECK_THROWS(semi_implicit_euler(spring, 0.0, State{1.0}, State{0.0, 1.0}, 1.0, 10), std::invalid_argument);
 }

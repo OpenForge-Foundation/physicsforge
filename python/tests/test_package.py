@@ -17,7 +17,7 @@ def test_version_matches_core():
 
 
 @pytest.mark.parametrize(
-    "package", [pf.mechanics, pf.electromagnetism, pf.thermodynamics, pf.modern, pf.numerics, pf.vector]
+    "package", [pf.mechanics, pf.electromagnetism, pf.thermodynamics, pf.quantum, pf.relativity, pf.numerics, pf.vector]
 )
 def test_all_exports_exist_and_are_documented(package):
     for name in package.__all__:

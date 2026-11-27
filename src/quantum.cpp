@@ -1,13 +1,13 @@
-// src/modern/quantum.cpp
-#include "physicsforge/modern/quantum.h"
+// src/quantum.cpp
+#include "physicsforge/quantum.h"
 
 #include <cmath>
 #include <limits>
 
 #include "physicsforge/constants.h"
-#include "physicsforge/detail/validation.h"
+#include "physicsforge/validation.h"
 
-namespace physicsforge::modern {
+namespace physicsforge::quantum {
 
     using constants::BOLTZMANN;
     using constants::PLANCK;
@@ -87,4 +87,4 @@ namespace physicsforge::modern {
         return constants::REDUCED_PLANCK / (2.0 * position_uncertainty);
     }
 
-} // namespace physicsforge::modern
+} // namespace physicsforge::quantum

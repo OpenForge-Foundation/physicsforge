@@ -16,8 +16,9 @@ void bind_vector(py::module_ &m);
 void bind_constants(py::module_ &m);
 void bind_electromagnetism(py::module_ &m);
 void bind_mechanics(py::module_ &m);
-void bind_modern(py::module_ &m);
 void bind_numerics(py::module_ &m);
+void bind_quantum(py::module_ &m);
+void bind_relativity(py::module_ &m);
 void bind_thermodynamics(py::module_ &m);
 
 PYBIND11_MODULE(_physicsforge, m) {
@@ -27,8 +28,9 @@ PYBIND11_MODULE(_physicsforge, m) {
     bind_constants(m);
     bind_electromagnetism(m);
     bind_mechanics(m);
-    bind_modern(m);
     bind_numerics(m);
+    bind_quantum(m);
+    bind_relativity(m);
     bind_thermodynamics(m);
 
     m.attr("__version__") = PHYSICSFORGE_VERSION_STRING;

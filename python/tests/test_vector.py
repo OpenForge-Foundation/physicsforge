@@ -19,6 +19,12 @@ from physicsforge.vector import (
 )
 
 
+@pytest.fixture
+def rng() -> np.random.Generator:
+    """Deterministic generator so failures are reproducible."""
+    return np.random.default_rng(20260101)
+
+
 def test_construction_and_components():
     v = Vector3(1, 2, 3)
     assert (v.x, v.y, v.z) == (1.0, 2.0, 3.0)

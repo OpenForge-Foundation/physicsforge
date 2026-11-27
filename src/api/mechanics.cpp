@@ -1,14 +1,14 @@
 // src/api/mechanics.cpp - C API shims for physicsforge::mechanics
-#include "api_guard.h"
 #include "physicsforge/api.h"
 #include "physicsforge/mechanics/dynamics.h"
 #include "physicsforge/mechanics/gravitation.h"
 #include "physicsforge/mechanics/kinematics.h"
 #include "physicsforge/mechanics/rocketry.h"
 #include "physicsforge/mechanics/rotation.h"
+#include "physicsforge/validation.h"
 
 namespace m = physicsforge::mechanics;
-using physicsforge::api::guarded;
+using physicsforge::detail::guarded;
 
 extern "C" double pf_mechanics_displacement(double v0, double a, double t) {
     return guarded([&] { return m::displacement(v0, a, t); });

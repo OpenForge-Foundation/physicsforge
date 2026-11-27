@@ -1,12 +1,12 @@
 // src/api/electromagnetism.cpp - C API shims for physicsforge::electromagnetism
-#include "api_guard.h"
 #include "physicsforge/api.h"
 #include "physicsforge/electromagnetism/circuits.h"
 #include "physicsforge/electromagnetism/electrostatics.h"
 #include "physicsforge/electromagnetism/maxwell.h"
+#include "physicsforge/validation.h"
 
 namespace em = physicsforge::electromagnetism;
-using physicsforge::api::guarded;
+using physicsforge::detail::guarded;
 
 extern "C" double pf_em_ohms_law_voltage(double i, double r) {
     return guarded([&] { return em::ohms_law_voltage(i, r); });

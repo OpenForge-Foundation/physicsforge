@@ -8,8 +8,10 @@ void test_vector();
 void test_mechanics();
 void test_electromagnetism();
 void test_thermodynamics();
-void test_modern();
+void test_quantum();
+void test_relativity();
 void test_numerics();
+void test_ode();
 void test_api();
 
 int main() {
@@ -25,8 +27,10 @@ int main() {
             {"mechanics", test_mechanics},
             {"electromagnetism", test_electromagnetism},
             {"thermodynamics", test_thermodynamics},
-            {"modern", test_modern},
+            {"quantum", test_quantum},
+            {"relativity", test_relativity},
             {"numerics", test_numerics},
+            {"ode", test_ode},
             {"c api", test_api},
     };
 

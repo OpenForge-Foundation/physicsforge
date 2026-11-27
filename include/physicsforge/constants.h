@@ -1,12 +1,11 @@
-// include/physicsforge/constants.h
-//
-// Fundamental physical and mathematical constants in SI units.
-//
-// Values are taken from the CODATA 2022 recommended values (NIST, May 2024).
-// Since the 2019 SI redefinition, c, h, e, k_B and N_A are exact by definition;
-// constants derived only from exact constants (hbar, R, sigma, b) are exact up to
-// double rounding. Measured constants (G, epsilon_0, mu_0, particle masses) carry
-// the CODATA standard uncertainty noted in the comments.
+/**
+ * @file constants.h
+ * @brief Physical and mathematical constants in SI units (CODATA 2022).
+ *
+ * Since the 2019 SI redefinition, c, h, e, k_B and N_A are exact by definition, and constants derived
+ * only from them are exact up to double rounding. Measured constants carry the CODATA relative
+ * standard uncertainty noted on each.
+ */
 
 #ifndef PHYSICSFORGE_CONSTANTS_H
 #define PHYSICSFORGE_CONSTANTS_H
@@ -15,68 +14,60 @@
 
 namespace physicsforge::constants {
 
-    // ---------------------------------------------------------------------------------------------
-    // Mathematical constants
-    // ---------------------------------------------------------------------------------------------
+    /** @name Mathematical constants */
 
-    // Archimedes' constant, pi.
+    /** @brief Archimedes' constant, pi. */
     inline constexpr double PI = std::numbers::pi;
-    // Full turn, 2*pi.
+    /** @brief Full turn, 2*pi. */
     inline constexpr double TAU = 2.0 * std::numbers::pi;
-    // Euler's number, e (base of the natural logarithm).
+    /** @brief Euler's number, e (base of the natural logarithm). */
     inline constexpr double EULER = std::numbers::e;
 
-    // ---------------------------------------------------------------------------------------------
-    // Exact SI defining constants
-    // ---------------------------------------------------------------------------------------------
+    /** @name Exact SI defining constants */
 
-    // Speed of light in vacuum, c [m s^-1]. Exact.
+    /** @brief Speed of light in vacuum, c [m s^-1]. Exact. */
     inline constexpr double SPEED_OF_LIGHT = 299'792'458.0;
-    // Planck constant, h [J s]. Exact.
+    /** @brief Planck constant, h [J s]. Exact. */
     inline constexpr double PLANCK = 6.626'070'15e-34;
-    // Reduced Planck constant, hbar = h / (2 pi) [J s].
+    /** @brief Reduced Planck constant, hbar = h / (2 pi) [J s]. */
     inline constexpr double REDUCED_PLANCK = PLANCK / TAU;
-    // Elementary charge, e [C]. Exact.
+    /** @brief Elementary charge, e [C]. Exact. */
     inline constexpr double ELEMENTARY_CHARGE = 1.602'176'634e-19;
-    // Boltzmann constant, k_B [J K^-1]. Exact.
+    /** @brief Boltzmann constant, k_B [J K^-1]. Exact. */
     inline constexpr double BOLTZMANN = 1.380'649e-23;
-    // Avogadro constant, N_A [mol^-1]. Exact.
+    /** @brief Avogadro constant, N_A [mol^-1]. Exact. */
     inline constexpr double AVOGADRO = 6.022'140'76e23;
 
-    // ---------------------------------------------------------------------------------------------
-    // Derived exact constants
-    // ---------------------------------------------------------------------------------------------
+    /** @name Derived exact constants */
 
-    // Molar gas constant, R = N_A k_B [J mol^-1 K^-1].
+    /** @brief Molar gas constant, R = N_A k_B [J mol^-1 K^-1]. */
     inline constexpr double GAS_CONSTANT = AVOGADRO * BOLTZMANN;
-    // Electron volt [J]. Numerically equal to the elementary charge.
+    /** @brief Electron volt [J]. Numerically equal to the elementary charge. */
     inline constexpr double ELECTRON_VOLT = ELEMENTARY_CHARGE;
-    // Stefan-Boltzmann constant, sigma [W m^-2 K^-4].
+    /** @brief Stefan-Boltzmann constant, sigma [W m^-2 K^-4]. */
     inline constexpr double STEFAN_BOLTZMANN = 5.670'374'419e-8;
-    // Wien wavelength displacement law constant, b [m K].
+    /** @brief Wien wavelength displacement law constant, b [m K]. */
     inline constexpr double WIEN_DISPLACEMENT = 2.897'771'955e-3;
-    // Standard acceleration of gravity, g_0 [m s^-2]. Exact by convention (CGPM 1901).
+    /** @brief Standard acceleration of gravity, g_0 [m s^-2]. Exact by convention (CGPM 1901). */
     inline constexpr double STANDARD_GRAVITY = 9.806'65;
-    // Standard atmosphere [Pa]. Exact by convention.
+    /** @brief Standard atmosphere [Pa]. Exact by convention. */
     inline constexpr double STANDARD_ATMOSPHERE = 101'325.0;
 
-    // ---------------------------------------------------------------------------------------------
-    // Measured constants (CODATA 2022)
-    // ---------------------------------------------------------------------------------------------
+    /** @name Measured constants (CODATA 2022) */
 
-    // Newtonian constant of gravitation, G [m^3 kg^-1 s^-2]. Rel. uncertainty 2.2e-5.
+    /** @brief Newtonian constant of gravitation, G [m^3 kg^-1 s^-2]. Rel. uncertainty 2.2e-5. */
     inline constexpr double GRAVITATIONAL_CONSTANT = 6.674'30e-11;
-    // Vacuum electric permittivity, epsilon_0 [F m^-1]. Rel. uncertainty 1.6e-10.
+    /** @brief Vacuum electric permittivity, epsilon_0 [F m^-1]. Rel. uncertainty 1.6e-10. */
     inline constexpr double VACUUM_PERMITTIVITY = 8.854'187'8188e-12;
-    // Vacuum magnetic permeability, mu_0 [N A^-2]. Rel. uncertainty 1.6e-10.
+    /** @brief Vacuum magnetic permeability, mu_0 [N A^-2]. Rel. uncertainty 1.6e-10. */
     inline constexpr double VACUUM_PERMEABILITY = 1.256'637'061'27e-6;
-    // Coulomb constant, k_e = 1 / (4 pi epsilon_0) [N m^2 C^-2].
+    /** @brief Coulomb constant, k_e = 1 / (4 pi epsilon_0) [N m^2 C^-2]. */
     inline constexpr double COULOMB_CONSTANT = 1.0 / (4.0 * PI * VACUUM_PERMITTIVITY);
-    // Electron rest mass, m_e [kg].
+    /** @brief Electron rest mass, m_e [kg]. */
     inline constexpr double ELECTRON_MASS = 9.109'383'7139e-31;
-    // Proton rest mass, m_p [kg].
+    /** @brief Proton rest mass, m_p [kg]. */
     inline constexpr double PROTON_MASS = 1.672'621'925'95e-27;
-    // Neutron rest mass, m_n [kg].
+    /** @brief Neutron rest mass, m_n [kg]. */
     inline constexpr double NEUTRON_MASS = 1.674'927'500'56e-27;
 
 } // namespace physicsforge::constants

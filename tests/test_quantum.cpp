@@ -1,17 +1,15 @@
-// tests/test_modern.cpp
+// tests/test_quantum.cpp
 #include <cmath>
 #include <stdexcept>
 
 #include "physicsforge/constants.h"
-#include "physicsforge/modern/quantum.h"
-#include "physicsforge/modern/relativity.h"
+#include "physicsforge/quantum.h"
 #include "test_framework.h"
 
-void test_modern() {
-    using namespace physicsforge::modern;
+void test_quantum() {
+    using namespace physicsforge::quantum;
     namespace c = physicsforge::constants;
 
-    // --- Quantum ---
     PF_CHECK_CLOSE(photon_energy_from_frequency(1.0), c::PLANCK);
     const double green = 550e-9;
     const double green_frequency = c::SPEED_OF_LIGHT / green;
@@ -47,16 +45,4 @@ void test_modern() {
     PF_CHECK_CLOSE(bohr_energy_level(2.0), bohr_energy_level(1.0) / 4.0);
     PF_CHECK_THROWS(bohr_energy_level(1.5), std::invalid_argument);
     PF_CHECK_CLOSE(heisenberg_min_momentum_uncertainty(1e-10), c::REDUCED_PLANCK / 2e-10);
-
-    // --- Relativity ---
-    PF_CHECK_CLOSE(lorentz_factor(0.0), 1.0);
-    PF_CHECK_CLOSE(lorentz_factor(0.6 * c::SPEED_OF_LIGHT), 1.25);
-    PF_CHECK_CLOSE(time_dilation(1.0, 0.6 * c::SPEED_OF_LIGHT), 1.25);
-    PF_CHECK_CLOSE(length_contraction(1.0, 0.6 * c::SPEED_OF_LIGHT), 0.8);
-    PF_CHECK_THROWS(lorentz_factor(c::SPEED_OF_LIGHT), std::invalid_argument);
-    PF_CHECK_CLOSE(rest_energy(1.0), c::SPEED_OF_LIGHT * c::SPEED_OF_LIGHT);
-    PF_CHECK_CLOSE(relativistic_kinetic_energy(1.0, 0.6 * c::SPEED_OF_LIGHT), 0.25 * rest_energy(1.0));
-    // Low-speed limit matches m v^2 / 2 without cancellation error.
-    PF_CHECK_CLOSE_TOL(relativistic_kinetic_energy(1.0, 1.0), 0.5, 1e-12, 0.0);
-    PF_CHECK_CLOSE(relativistic_momentum(1.0, 0.6 * c::SPEED_OF_LIGHT), 1.25 * 0.6 * c::SPEED_OF_LIGHT);
 }

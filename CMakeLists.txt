@@ -68,11 +68,12 @@ set(PHYSICSFORGE_CORE_SOURCES
         src/thermodynamics/heat.cpp
         src/thermodynamics/heat_equation.cpp
 
-        src/modern/quantum.cpp
-        src/modern/relativity.cpp
+        src/quantum.cpp
+        src/relativity.cpp
 
         src/numerics/calculus.cpp
         src/numerics/integrate.cpp
+        src/numerics/ode.cpp
         src/numerics/optimize.cpp
         src/numerics/roots.cpp
         src/numerics/transforms.cpp
@@ -83,7 +84,8 @@ set(PHYSICSFORGE_API_SOURCES
         src/api/mechanics.cpp
         src/api/electromagnetism.cpp
         src/api/thermodynamics.cpp
-        src/api/modern.cpp
+        src/api/quantum.cpp
+        src/api/relativity.cpp
 )
 
 add_library(physicsforge_core STATIC ${PHYSICSFORGE_CORE_SOURCES} ${PHYSICSFORGE_API_SOURCES})
@@ -149,7 +151,8 @@ if (PHYSICSFORGE_BUILD_PYTHON)
             python/bindings/mechanics.cpp
             python/bindings/electromagnetism.cpp
             python/bindings/thermodynamics.cpp
-            python/bindings/modern.cpp
+            python/bindings/quantum.cpp
+            python/bindings/relativity.cpp
             python/bindings/numerics.cpp
     )
     target_include_directories(_physicsforge PRIVATE python/bindings)
@@ -169,7 +172,8 @@ if (PHYSICSFORGE_BUILD_TESTS)
             tests/test_mechanics.cpp
             tests/test_electromagnetism.cpp
             tests/test_thermodynamics.cpp
-            tests/test_modern.cpp
+            tests/test_quantum.cpp
+            tests/test_relativity.cpp
             tests/test_numerics.cpp
             tests/test_api.cpp
     )

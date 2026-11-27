@@ -5,9 +5,9 @@
 #include <cmath>
 #include <stdexcept>
 
-#include "physicsforge/detail/validation.h"
 #include "physicsforge/math/linalg.h"
 #include "physicsforge/numerics/calculus.h"
+#include "physicsforge/validation.h"
 
 namespace physicsforge::numerics {
 

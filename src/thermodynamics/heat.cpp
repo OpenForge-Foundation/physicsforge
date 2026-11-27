@@ -4,7 +4,7 @@
 #include <cmath>
 
 #include "physicsforge/constants.h"
-#include "physicsforge/detail/validation.h"
+#include "physicsforge/validation.h"
 
 namespace physicsforge::thermodynamics {
 

@@ -1,10 +1,10 @@
 // src/api/thermodynamics.cpp - C API shims for physicsforge::thermodynamics
-#include "api_guard.h"
 #include "physicsforge/api.h"
 #include "physicsforge/thermodynamics/heat.h"
+#include "physicsforge/validation.h"
 
 namespace th = physicsforge::thermodynamics;
-using physicsforge::api::guarded;
+using physicsforge::detail::guarded;
 
 extern "C" double pf_thermo_conduction_rate(double k, double area, double dt, double thickness) {
     return guarded([&] { return th::conduction_rate(k, area, dt, thickness); });

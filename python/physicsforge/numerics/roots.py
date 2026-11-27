@@ -8,26 +8,40 @@ and converges quadratically near a simple root. The multivariate form solves
 :math:`J(\mathbf{x}_k)\,\Delta\mathbf{x} = -F(\mathbf{x}_k)` at each step.
 
 By default a solver that misses its tolerance raises
-:class:`~physicsforge.exceptions.ConvergenceError` (carrying the last result).
+:class:`ConvergenceError` (carrying the last result).
 Pass ``raise_on_failure=False`` to inspect ``result.converged`` yourself.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 
 from physicsforge import _physicsforge as _core
 from physicsforge._typing import ArrayLike
-from physicsforge.exceptions import ConvergenceError
-from physicsforge.numerics import _callbacks
+from physicsforge.numerics.calculus import _as_point, _vector_valued
 
 RootResult = _core.RootResult
 SystemRootResult = _core.SystemRootResult
 
 DEFAULT_TOLERANCE = 1e-12
 DEFAULT_MAX_ITERATIONS = 100
+
+
+class ConvergenceError(RuntimeError):
+    """An iterative solver stopped without meeting its tolerance.
+
+    Attributes
+    ----------
+    result : object
+        The solver's result (e.g. :class:`RootResult`), holding the last iterate so it can be inspected or reused.
+    """
+
+    def __init__(self, message: str, result: Any) -> None:
+        super().__init__(message)
+        self.result = result
 
 
 def _check(result, name: str, raise_on_failure: bool):
@@ -147,8 +161,8 @@ def newton_system(
     >>> np.round(sol.root, 12)
     array([1.41421356, 1.41421356])
     """
-    result = _core.newton_system(_callbacks.vector_valued(f), _callbacks.as_point(x0), tolerance, max_iterations)
+    result = _core.newton_system(_vector_valued(f), _as_point(x0), tolerance, max_iterations)
     return _check(result, "newton_system", raise_on_failure)
 
 
-__all__ = ["RootResult", "SystemRootResult", "bisect", "newton", "newton_system"]
+__all__ = ["ConvergenceError", "RootResult", "SystemRootResult", "bisect", "newton", "newton_system"]

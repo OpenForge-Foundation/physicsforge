@@ -19,8 +19,8 @@ import numpy as np
 
 from physicsforge import _physicsforge as _core
 from physicsforge._typing import ArrayLike
-from physicsforge.exceptions import ConvergenceError
-from physicsforge.numerics import _callbacks
+from physicsforge.numerics.calculus import _as_point, _multivariate
+from physicsforge.numerics.roots import ConvergenceError
 
 OptimizeResult = _core.OptimizeResult
 
@@ -47,7 +47,7 @@ def newton_minimize(
     max_iterations : int, optional
         Iteration cap. Default 100.
     raise_on_failure : bool, optional
-        Raise :class:`~physicsforge.exceptions.ConvergenceError` if not converged.
+        Raise :class:`~physicsforge.numerics.ConvergenceError` if not converged.
 
     Returns
     -------
@@ -64,7 +64,7 @@ def newton_minimize(
     >>> np.round(result.x, 6)
     array([1., 1.])
     """
-    result = _core.newton_minimize(_callbacks.multivariate(f), _callbacks.as_point(x0), tolerance, max_iterations)
+    result = _core.newton_minimize(_multivariate(f), _as_point(x0), tolerance, max_iterations)
     if raise_on_failure and not result.converged:
         raise ConvergenceError(f"newton_minimize did not converge after {result.iterations} iterations", result)
     return result

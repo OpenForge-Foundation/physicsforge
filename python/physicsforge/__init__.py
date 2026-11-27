@@ -16,8 +16,10 @@ electromagnetism
     Ohm's law and circuits, electrostatics, Maxwell's equations.
 thermodynamics
     Heat laws (Fourier, Newton, Stefan-Boltzmann) and the heat equation.
-modern
-    Quantum (Planck) relations and special relativity.
+quantum
+    Planck-Einstein relation, photons, matter waves, black-body radiation, Bohr atom.
+relativity
+    Special relativity: Lorentz factor, time dilation, length contraction, mass-energy.
 numerics
     Newton's method, Hessians, vector calculus, quadrature, FFT, Fourier
     series and Laplace transforms.
@@ -48,15 +50,23 @@ except ImportError as exc:  # pragma: no cover - only hit on a broken install
         "Reinstall the wheel for your Python version or rebuild from source (see README)."
     ) from exc
 
-from physicsforge import constants, electromagnetism, mechanics, modern, numerics, thermodynamics, vector
-from physicsforge.exceptions import ConvergenceError, PhysicsForgeError
+from physicsforge import (
+    constants,
+    electromagnetism,
+    mechanics,
+    numerics,
+    quantum,
+    relativity,
+    thermodynamics,
+    vector,
+)
+from physicsforge.numerics import ConvergenceError
 from physicsforge.vector import Vector3, cross, dot
 
 __version__: str = _physicsforge.__version__
 
 __all__ = [
     "ConvergenceError",
-    "PhysicsForgeError",
     "Vector3",
     "__version__",
     "constants",
@@ -64,8 +74,9 @@ __all__ = [
     "dot",
     "electromagnetism",
     "mechanics",
-    "modern",
     "numerics",
+    "quantum",
+    "relativity",
     "thermodynamics",
     "vector",
 ]

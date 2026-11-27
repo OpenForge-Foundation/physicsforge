@@ -2,6 +2,7 @@
 //
 // Routines that take user callables keep the GIL (they call back into Python);
 // pure-array routines (FFT, Fourier-series evaluation) release it.
+#include <algorithm>
 #include <complex>
 #include <sstream>
 #include <vector>
@@ -14,6 +15,7 @@
 #include "binding_utils.h"
 #include "physicsforge/numerics/calculus.h"
 #include "physicsforge/numerics/integrate.h"
+#include "physicsforge/numerics/ode.h"
 #include "physicsforge/numerics/optimize.h"
 #include "physicsforge/numerics/roots.h"
 #include "physicsforge/numerics/transforms.h"
@@ -27,6 +29,15 @@ namespace {
     }
 
     std::string bool_text(const bool b) { return b ? "True" : "False"; }
+
+    // Copies a row-major trajectory buffer into a (rows, dimension) NumPy array.
+    py::array_t<double> trajectory_to_numpy(const std::vector<double> &values, const std::size_t dimension) {
+        const auto cols = static_cast<py::ssize_t>(dimension);
+        const auto rows = cols == 0 ? py::ssize_t{0} : static_cast<py::ssize_t>(values.size()) / cols;
+        py::array_t<double> out({rows, cols});
+        std::copy(values.begin(), values.end(), out.mutable_data());
+        return out;
+    }
 } // namespace
 
 void bind_numerics(py::module_ &m) {
@@ -73,6 +84,29 @@ void bind_numerics(py::module_ &m) {
                 out.precision(17);
                 out << "OptimizeResult(value=" << r.value << ", iterations=" << r.iterations
                     << ", converged=" << bool_text(r.converged) << ")";
+                return out.str();
+            });
+
+    py::class_<nm::OdeSolution>(m, "OdeSolution", "Trajectory of a first-order ODE system.")
+            .def_property_readonly("t", [](const nm::OdeSolution &r) { return copy_to_numpy(r.t); })
+            .def_property_readonly("y", [](const nm::OdeSolution &r) { return trajectory_to_numpy(r.y, r.dimension); })
+            .def("__repr__", [](const nm::OdeSolution &r) {
+                std::ostringstream out;
+                out << "OdeSolution(steps=" << (r.t.empty() ? 0 : r.t.size() - 1) << ", dimension=" << r.dimension
+                    << ")";
+                return out.str();
+            });
+
+    py::class_<nm::SecondOrderSolution>(m, "SecondOrderSolution", "Trajectory of a second-order ODE system.")
+            .def_property_readonly("t", [](const nm::SecondOrderSolution &r) { return copy_to_numpy(r.t); })
+            .def_property_readonly(
+                    "x", [](const nm::SecondOrderSolution &r) { return trajectory_to_numpy(r.position, r.dimension); })
+            .def_property_readonly(
+                    "v", [](const nm::SecondOrderSolution &r) { return trajectory_to_numpy(r.velocity, r.dimension); })
+            .def("__repr__", [](const nm::SecondOrderSolution &r) {
+                std::ostringstream out;
+                out << "SecondOrderSolution(steps=" << (r.t.empty() ? 0 : r.t.size() - 1)
+                    << ", dimension=" << r.dimension << ")";
                 return out.str();
             });
 
@@ -134,6 +168,13 @@ void bind_numerics(py::module_ &m) {
           py::arg("max_iterations"));
     m.def("newton_minimize", &nm::newton_minimize, py::arg("f"), py::arg("x0"), py::arg("tolerance"),
           py::arg("max_iterations"));
+
+    // ---- ODE integrators ----------------------------------------------------------------------
+    m.def("euler", &nm::euler, py::arg("f"), py::arg("t0"), py::arg("y0"), py::arg("t_end"), py::arg("steps"));
+    m.def("runge_kutta4", &nm::runge_kutta4, py::arg("f"), py::arg("t0"), py::arg("y0"), py::arg("t_end"),
+          py::arg("steps"));
+    m.def("semi_implicit_euler", &nm::semi_implicit_euler, py::arg("acceleration"), py::arg("t0"), py::arg("x0"),
+          py::arg("v0"), py::arg("t_end"), py::arg("steps"));
 
     // ---- Integration -------------------------------------------------------------------------
     m.def(

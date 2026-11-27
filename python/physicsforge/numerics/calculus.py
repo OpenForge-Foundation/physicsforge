@@ -21,8 +21,44 @@ import numpy as np
 
 from physicsforge import _physicsforge as _core
 from physicsforge._typing import ArrayLike, FloatArray, VectorLike
-from physicsforge.numerics import _callbacks
 from physicsforge.vector import Vector3, as_vector
+
+# --- Adapters between NumPy-style user callables and the core's list/Vector3 signatures ---
+
+
+def _multivariate(f: Callable[[np.ndarray], Any]) -> Callable[[list[float]], float]:
+    """Wrap ``f: ndarray -> scalar`` for the core's ``vector<double> -> double`` signature."""
+
+    def call(x: list[float]) -> float:
+        return float(f(np.asarray(x, dtype=np.float64)))
+
+    return call
+
+
+def _vector_valued(f: Callable[[np.ndarray], Any]) -> Callable[[list[float]], list[float]]:
+    """Wrap ``F: ndarray -> array_like`` for the core's ``vector<double> -> vector<double>`` signature."""
+
+    def call(x: list[float]) -> list[float]:
+        return np.asarray(f(np.asarray(x, dtype=np.float64)), dtype=np.float64).ravel().tolist()
+
+    return call
+
+
+def _vector_field(field: Callable[[np.ndarray], Any]) -> Callable[[Vector3], Vector3]:
+    """Wrap ``F: ndarray(3,) -> array_like(3)`` for the core's ``Vec3 -> Vec3`` signature."""
+
+    def call(point: Vector3) -> Vector3:
+        return as_vector(field(np.array([point.x, point.y, point.z])), "field(point)")
+
+    return call
+
+
+def _as_point(x: Any) -> list[float]:
+    """Validate and convert a point in R^n to a list for the core."""
+    array = np.asarray(x, dtype=np.float64)
+    if array.ndim != 1 or array.size == 0:
+        raise ValueError(f"x must be a non-empty 1-D array (got shape {array.shape})")
+    return array.tolist()
 
 
 def derivative(f: Callable[[float], float], x: float, step: float | None = None) -> float:
@@ -82,7 +118,7 @@ def gradient(f: Callable[[np.ndarray], float], x: ArrayLike) -> FloatArray:
     >>> np.round(gradient(lambda v: v[0]**2 + 3 * v[1], [2.0, 5.0]), 10)
     array([4., 3.])
     """
-    return _core.gradient(_callbacks.multivariate(f), _callbacks.as_point(x))
+    return _core.gradient(_multivariate(f), _as_point(x))
 
 
 def hessian(f: Callable[[np.ndarray], float], x: ArrayLike) -> FloatArray:
@@ -104,7 +140,7 @@ def hessian(f: Callable[[np.ndarray], float], x: ArrayLike) -> FloatArray:
     array([[-4.,  3.],
            [ 3.,  6.]])
     """
-    return _core.hessian(_callbacks.multivariate(f), _callbacks.as_point(x))
+    return _core.hessian(_multivariate(f), _as_point(x))
 
 
 def jacobian(f: Callable[[np.ndarray], ArrayLike], x: ArrayLike) -> FloatArray:
@@ -122,7 +158,7 @@ def jacobian(f: Callable[[np.ndarray], ArrayLike], x: ArrayLike) -> FloatArray:
     array([[3., 2.],
            [1., 1.]])
     """
-    return _core.jacobian(_callbacks.vector_valued(f), _callbacks.as_point(x))
+    return _core.jacobian(_vector_valued(f), _as_point(x))
 
 
 def laplacian(f: Callable[[np.ndarray], float], x: ArrayLike) -> float:
@@ -133,7 +169,7 @@ def laplacian(f: Callable[[np.ndarray], float], x: ArrayLike) -> float:
     >>> round(laplacian(lambda v: v[0]**2 + v[1]**2 + v[2]**2, [1.0, 2.0, 3.0]), 6)
     6.0
     """
-    return _core.laplacian(_callbacks.multivariate(f), _callbacks.as_point(x))
+    return _core.laplacian(_multivariate(f), _as_point(x))
 
 
 def divergence(field: Callable[[np.ndarray], Any], point: VectorLike) -> float:
@@ -156,7 +192,7 @@ def divergence(field: Callable[[np.ndarray], Any], point: VectorLike) -> float:
     >>> abs(divergence(coulomb, (1.0, 2.0, 2.0))) < 1e-9
     True
     """
-    return _core.divergence(_callbacks.vector_field(field), as_vector(point, "point"))
+    return _core.divergence(_vector_field(field), as_vector(point, "point"))
 
 
 def curl(field: Callable[[np.ndarray], Any], point: VectorLike) -> Vector3:
@@ -171,7 +207,7 @@ def curl(field: Callable[[np.ndarray], Any], point: VectorLike) -> Vector3:
     >>> [round(v, 9) for v in c]
     [0.0, 0.0, 2.0]
     """
-    return _core.curl(_callbacks.vector_field(field), as_vector(point, "point"))
+    return _core.curl(_vector_field(field), as_vector(point, "point"))
 
 
 __all__ = ["curl", "derivative", "divergence", "gradient", "hessian", "jacobian", "laplacian", "second_derivative"]
