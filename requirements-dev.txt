@@ -1,0 +1,11 @@
+numpy>=1.24
+# Pinned: these two decide the committed _physicsforge.pyi, which CI regenerates and diffs.
+pybind11==3.1.0
+pybind11-stubgen==2.5.5
+setuptools>=77
+wheel
+build
+pytest>=8
+pre-commit
+ruff
+mypy

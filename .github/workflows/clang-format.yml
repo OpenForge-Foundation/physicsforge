@@ -1,0 +1,32 @@
+name: Check Formatting
+
+on:
+    push:
+        branches: [ main, develop ]
+    pull_request: # Every PR is checked
+
+concurrency:
+    group: formatting-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    pre-commit:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v7
+
+            -   name: Set up Python
+                uses: actions/setup-python@v7
+                with:
+                    python-version: '3.x'
+
+            -   name: Install pre-commit
+                run: pip install pre-commit
+
+            # clang-format for C++, ruff for Python
+            -   name: Run pre-commit
+                run: pre-commit run --all-files --show-diff-on-failure

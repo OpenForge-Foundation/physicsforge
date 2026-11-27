@@ -1,0 +1,7 @@
+# The extension is built by CMake from these sources, so an sdist must carry them.
+include CMakeLists.txt LICENSE README.md requirements-dev.txt
+graft include
+graft src
+graft tests
+include python/physicsforge/py.typed python/physicsforge/_physicsforge.pyi
+global-exclude *.py[cod] __pycache__ *.pyd *.so *.dylib

@@ -1,0 +1,144 @@
+name: Build Wheels
+
+# Builds the binary wheels, one per (platform, Python version) pair, plus the
+# source distribution.
+#
+# This is the expensive workflow -- three runners x five Python versions -- so
+# it is deliberately scoped to `main` only. The cheap per-push checks live in
+# python-distro.yml and clang-format.yml.
+#
+# build_all.ps1 remains the supported way to produce Windows wheels locally;
+# this workflow is the cross-platform equivalent for CI.
+on:
+    push:
+        branches: [ main ]
+    workflow_dispatch:
+    # Lets a future release workflow reuse this matrix instead of duplicating it.
+    workflow_call:
+
+# A newer push to main makes an in-flight run obsolete.
+concurrency:
+    group: wheels-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    wheels:
+        name: wheels (${{ matrix.label }})
+        runs-on: ${{ matrix.os }}
+        strategy:
+            # Build every platform even after one fails, so a single broken
+            # target does not hide the state of the others.
+            fail-fast: false
+            matrix:
+                include:
+                    -   os: ubuntu-latest
+                        label: linux-x86_64
+                    -   os: windows-latest
+                        label: windows-amd64
+                    # No free x86_64 macOS runner: build both arches here and cross-compile x86_64.
+                    -   os: macos-14
+                        label: macos
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v7
+
+            -   name: Build and test wheels
+                uses: pypa/cibuildwheel@v4.2.0
+                env:
+                    # Matches requires-python = ">=3.10" in pyproject.toml.
+                    CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
+
+                    # 1 shows the CMake/compiler output on failure.
+                    CIBW_BUILD_VERBOSITY: 1
+
+                    # musl builds would double Linux time for a small audience.
+                    CIBW_SKIP: "*-musllinux_*"
+
+                    # Cross-compiled x86_64 wheels can't run on Apple Silicon.
+                    CIBW_TEST_SKIP: "*-macosx_x86_64"
+
+                    CIBW_ARCHS_LINUX: x86_64
+                    CIBW_ARCHS_WINDOWS: AMD64
+                    CIBW_ARCHS_MACOS: x86_64 arm64
+
+                    # C++20 library features need a macOS 11 deployment target.
+                    CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET=11.0
+
+                    # Each wheel is installed into a clean venv and exercised before
+                    # it is kept, importing the built wheel, never the source tree.
+                    CIBW_TEST_REQUIRES: pytest
+                    CIBW_TEST_COMMAND: pytest {project}/tests/python -q -p no:cacheprovider -o addopts=""
+
+            -   name: Upload wheels
+                uses: actions/upload-artifact@v7
+                with:
+                    name: wheels-${{ matrix.label }}
+                    path: ./wheelhouse/*.whl
+                    if-no-files-found: error
+
+    sdist:
+        name: sdist
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v7
+
+            -   name: Set up Python
+                uses: actions/setup-python@v7
+                with:
+                    python-version: '3.12'
+
+            -   name: Build sdist
+                run: |
+                    python -m pip install --upgrade pip build
+                    python -m build --sdist
+
+            -   name: Upload sdist
+                uses: actions/upload-artifact@v7
+                with:
+                    name: sdist
+                    path: ./dist/*.tar.gz
+                    if-no-files-found: error
+
+    # Installs the exact tarball the sdist job produced, so a file missing from
+    # MANIFEST.in fails here rather than for a user.
+    sdist-install:
+        name: sdist install
+        needs: sdist
+        runs-on: ubuntu-latest
+
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v7
+
+            -   name: Set up Python
+                uses: actions/setup-python@v7
+                with:
+                    python-version: '3.12'
+
+            -   name: Download the built sdist
+                uses: actions/download-artifact@v7
+                with:
+                    name: sdist
+                    path: dist
+
+            # Build isolation is left on, so pip has to resolve build-system.requires by itself.
+            -   name: Install from the sdist
+                run: |
+                    python -m pip install --upgrade pip
+                    pip install dist/*.tar.gz
+
+            -   name: Import the installed package
+                run: |
+                    cd "$RUNNER_TEMP"
+                    python -c "import physicsforge, physicsforge._physicsforge; print(physicsforge.__version__)"
+
+            -   name: Run the test suite against it
+                run: |
+                    pip install pytest
+                    cd "$RUNNER_TEMP"
+                    python -m pytest "$GITHUB_WORKSPACE/tests/python" -q -p no:cacheprovider -o addopts="" --rootdir "$RUNNER_TEMP"
